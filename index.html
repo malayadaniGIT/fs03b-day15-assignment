@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Countries Table</title>
+  <style>
+    body{
+      color: blue;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    #search-input {
+      margin-bottom: 10px;
+    }
+    .totalcountry{
+      color: red;
+      font-size: large;
+      text-align: center;
+    }
+    .average{
+      color: red;
+      font-size: large;
+      text-align: center;
+    }
+  .cats{
+    color: green;
+    font-weight: 800;
+    font-size: large;
+  }
+  </style>
+</head>
+<body>
+  <input type="text" id="search-input" placeholder="Search country">
+  
+  <table id="countries-table">
+    <tr>
+      <th>Country</th>
+      <th>Capital</th>
+      <th>Languages</th>
+      <th>Population</th>
+      <th>Area</th>
+    </tr>
+  </table>
+  <script>
+
+
+    const countriesAPI = "https://restcountries.com/v2/all";
+   
+//EXERCISE1
+    // Fetch the data from the countries API
+    fetch(countriesAPI)
+      .then(response => response.json())
+      .then(data => {
+        const table = document.getElementById('countries-table');
+        const searchInput = document.getElementById('search-input');
+        let countriesData = data.slice(0, 20); // Select first 20 countries
+
+        // Create a table row for each country
+        const createTable = () => {
+          table.innerHTML = '';
+
+          countriesData.forEach(country => {
+            const row = document.createElement('tr');
+
+            const nameCell = document.createElement('td');
+            nameCell.textContent = country.name;
+            row.appendChild(nameCell);
+
+            const capitalCell = document.createElement('td');
+            capitalCell.textContent = country.capital;
+            row.appendChild(capitalCell);
+
+            const languagesCell = document.createElement('td');
+            const languages = country.languages.map(lang => lang.name).join(', ');
+            languagesCell.textContent = languages;
+            row.appendChild(languagesCell);
+
+            const populationCell = document.createElement('td');
+            populationCell.textContent = country.population;
+            row.appendChild(populationCell);
+
+            const areaCell = document.createElement('td');
+            areaCell.textContent = country.area;
+            row.appendChild(areaCell);
+
+            table.appendChild(row);
+          });
+        };
+        // Handle search functionality
+        const handleSearch = () => {
+          const searchTerm = searchInput.value.toLowerCase();
+          countriesData = data.filter(country => {
+            return country.name.toLowerCase().includes(searchTerm);
+          });
+          createTable();
+        };
+        // Add event listener for search input
+        searchInput.addEventListener('input', handleSearch);
+        // Initial table creation
+        createTable();
+
+
+//EXERCISE2-print all cat names
+
+       const catsAPI = "https://api.thecatapi.com/v1/breeds";
+        fetch(catsAPI)
+          .then(response => response.json())
+          .then(data => {
+            const catNames = data.map(cat => cat.name);
+
+            const catNamesList = document.createElement('ul');
+            catNames.forEach(catName => {
+              const listItem = document.createElement('li');
+              listItem.textContent = catName;
+              listItem.classList.add('cats')
+              catNamesList.appendChild(listItem);
+            });
+            document.body.appendChild(catNamesList);
+          })
+          .catch(error => console.log(error));
+
+
+//EXERCISE3
+
+       // average weight of cat in metric unit.
+        fetch(catsAPI)
+          .then(response => response.json())
+          .then(data => {
+            const weights = data.map(cat => cat.weight.metric.split(" - "));
+            const averageWeight = weights.reduce((sum, weight) => {
+              const [min, max] = weight.map(w => parseFloat(w));
+              return sum + (min + max) / 2;
+            }, 0) / weights.length;
+            const line=document.createElement('hr')
+            const line2=document.createElement('hr')
+            const averageWeightText = document.createElement('p');
+            averageWeightText.textContent = `Average Weight of cats : ${averageWeight}`;
+            averageWeightText.classList.add('average')
+            document.body.appendChild(line);
+            document.body.appendChild(averageWeightText);
+            document.body.appendChild(line2);
+          })
+          .catch(error => console.log(error));
+
+       //10 largest countries
+
+        const largestCountries = data
+          .filter(country => country.area !== null)
+          .sort((a, b) => b.area - a.area)
+          .slice(0, 10)
+          .map(country => country.name);
+          const line3=document.createElement('hr')
+        const topten=document.createElement('div')
+        const largestCountriesList = document.createElement('ul');
+        largestCountries.forEach(country => {
+          const listItem = document.createElement('li');
+          listItem.textContent = country;
+          largestCountriesList.appendChild(listItem);
+        });
+        document.body.appendChild(line3);
+        document.body.appendChild(line3);
+        
+        document.body.appendChild(largestCountriesList);
+     
+        // total number of languages in the world used as officials.
+
+        const totalLanguages = data.reduce((total, country) => {
+          return total + country.languages.length;
+        }, 0);
+        const line=document.createElement('hr')
+        const line2=document.createElement('hr')
+        const totalLanguagesElement = document.createElement('p');
+        totalLanguagesElement.textContent = `Total number of languages used as officials: ${totalLanguages}`;
+        totalLanguagesElement.classList.add("totalcountry")
+        document.body.appendChild(line);
+        document.body.appendChild(totalLanguagesElement);
+        document.body.appendChild(line2);
+      })
+      .catch(error => console.log(error));
+
+  </script>
+</body>
+</html>
